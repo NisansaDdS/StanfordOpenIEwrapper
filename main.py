@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+
+
 """
 A simple Python wrapper for the stanford IE binary that makes it easier to use it
 on UNIX/Windows systems.
@@ -15,6 +17,8 @@ Example:
 Authors:    Philippe Remy       <github: philipperemy>
 Version:    2016-07-08
 """
+
+
 
 # Copyright (c) 2016, Philippe Remy <github: philipperemy>
 #
@@ -37,10 +41,11 @@ from argparse import ArgumentParser
 from subprocess import Popen
 from sys import argv
 from sys import stderr
+import subprocess
 
 JAVA_BIN_PATH = 'java'
 DOT_BIN_PATH = 'dot'
-STANFORD_IE_FOLDER = 'stanford-openie'
+STANFORD_IE_FOLDER ='stanford-corenlp' # 'stanford-openie'
 
 tmp_folder = '/tmp/openie/'
 if not os.path.exists(tmp_folder):
@@ -105,15 +110,22 @@ def stanford_ie(input_filename, verbose=True, generate_graphviz=False):
 
     absolute_path_to_script = os.path.dirname(os.path.realpath(__file__)) + '/'
     command = 'cd {};'.format(absolute_path_to_script)
-    command += 'cd {}; {} -mx4g -cp "stanford-openie.jar:stanford-openie-models.jar:lib/*" ' \
+   # command += 'cd {}; {} -mx4g -cp "stanford-openie.jar:stanford-openie-models.jar:lib/*" ' \
+   #            'edu.stanford.nlp.naturalli.OpenIE {} -format ollie > {}'. \
+   #     format(STANFORD_IE_FOLDER, JAVA_BIN_PATH, new_filename, out)
+    command += 'cd {}; {} -mx4g -cp "*" ' \
                'edu.stanford.nlp.naturalli.OpenIE {} -format ollie > {}'. \
         format(STANFORD_IE_FOLDER, JAVA_BIN_PATH, new_filename, out)
 
+
+
     if verbose:
         debug_print('Executing command = {}'.format(command), verbose)
-        java_process = Popen(command, stdout=stderr, shell=True)
+        #java_process = Popen(command, stdout=stderr, shell=True)
+        java_process = Popen(command, stdout=subprocess.PIPE, shell=True)
     else:
-        java_process = Popen(command, stdout=stderr, stderr=open(os.devnull, 'w'), shell=True)
+        #java_process = Popen(command, stdout=stderr, stderr=open(os.devnull, 'w'), shell=True)
+        java_process = Popen(command, stdout=subprocess.PIPE, stderr=open(os.devnull, 'w'), shell=True)
     java_process.wait()
     assert not java_process.returncode, 'ERROR: Call to stanford_ie exited with a non-zero code status.'
 
